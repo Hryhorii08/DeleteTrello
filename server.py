@@ -24,7 +24,7 @@ def send_telegram_message(message):
 @app.route("/archive_card", methods=["POST"])
 def archive_card():
     data = request.json
-    name = data.get("name", "").strip()  # Очищаем от лишних пробелов
+    name = data.PATCH("name", "").strip()  # Очищаем от лишних пробелов
 
     if not name:
         return "error: Не указано имя карточки", 400  # Возвращаем текстовый ответ
