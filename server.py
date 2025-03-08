@@ -20,9 +20,9 @@ def send_telegram_message(message):
     data = {"chat_id": CHAT_ID, "text": message, "parse_mode": "Markdown"}
     requests.post(url, data=data)
 
-# 📌 Функция удаления карточки
-@app.route("/delete_card", methods=["DELETE"])
-def delete_card():
+# 📌 Функция архивации карточки (вместо удаления)
+@app.route("/archive_card", methods=["PATCH"])
+def archive_card():
     data = request.json
     name = data.get("name", "").strip()  # Очищаем от лишних пробелов
 
@@ -40,34 +40,34 @@ def delete_card():
         return "error: Ошибка при получении списка карточек", 500
 
     cards = cards_response.json()
-    
+
     # 🔍 Вывод всех карточек для отладки (можно убрать после тестов)
     print("📌 Список карточек в списке:")
     for card in cards:
         print(f"- {card['name']} (ID: {card['id']})")
 
     # 2️⃣ Ищем карточку по имени (игнорируем регистр и пробелы)
-    card_to_delete = next(
+    card_to_archive = next(
         (c for c in cards if c["name"].strip().lower() == name.lower()), None
     )
 
-    if not card_to_delete:
+    if not card_to_archive:
         return "error: Карточка не найдена", 404
 
-    card_id = card_to_delete["id"]
+    card_id = card_to_archive["id"]
 
-    # 3️⃣ Удаляем карточку
-    delete_response = requests.delete(
+    # 3️⃣ Архивируем карточку (закрываем её)
+    archive_response = requests.put(
         f"{TRELLO_URL}/cards/{card_id}",
-        params={"key": TRELLO_API_KEY, "token": TRELLO_TOKEN},
+        params={"closed": "true", "key": TRELLO_API_KEY, "token": TRELLO_TOKEN},
         headers=HEADERS
     )
 
-    if delete_response.status_code == 200:
-        send_telegram_message(f"🗑 *Карточка удалена*\n📌 Имя: {name}")
-        return f"success: Карточка '{name}' удалена", 200  # Возвращаем текст
+    if archive_response.status_code == 200:
+        send_telegram_message(f"📂 *Карточка архивирована*\n📌 Имя: {name}")
+        return f"success: Карточка '{name}' архивирована", 200  # Возвращаем текст
     else:
-        return "error: Ошибка удаления карточки", 500
+        return "error: Ошибка архивации карточки", 500
 
 # 📌 Гарантия возврата текста при ошибках
 @app.errorhandler(500)
