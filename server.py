@@ -8,7 +8,7 @@ TELEGRAM_BOT_TOKEN = "7788946008:AAGULYh-GIkpr-GA3ZA70ERdCAT6BcGNW-g"
 CHAT_ID = "-1002307069728"
 TRELLO_API_KEY = "5880197335c3d727693408202c68375d"
 TRELLO_TOKEN = "ATTA1ea4c6edf0b2892fec32580ab1417a42f521cd70c11af1453ddd0a4956e72896C175BE4E"
-TRELLO_BOARD_ID = "67c19cc6cd0d960e2398be79"
+TRELLO_LIST_ID = "67c19cd6641117e44ae95227"  # 🔥 Используем ID списка
 
 TRELLO_URL = "https://api.trello.com/1"
 HEADERS = {"Accept": "application/json"}
@@ -19,7 +19,7 @@ def send_telegram_message(message):
     data = {"chat_id": CHAT_ID, "text": message, "parse_mode": "Markdown"}
     requests.post(url, data=data)
 
-# 📌 Удаление карточки из Trello
+# 📌 Удаление карточки из Trello (поиск только в конкретном листе)
 @app.route("/delete_card", methods=["DELETE"])
 def delete_card():
     data = request.json
@@ -28,8 +28,8 @@ def delete_card():
     if not name:
         return "error: Не указано имя карточки", 400  # Текстовый ответ
 
-    # 📌 Получаем список всех карточек на доске
-    cards_response = requests.get(f"{TRELLO_URL}/boards/{TRELLO_BOARD_ID}/cards",
+    # 📌 Получаем список всех карточек в конкретном листе
+    cards_response = requests.get(f"{TRELLO_URL}/lists/{TRELLO_LIST_ID}/cards",
                                   params={"key": TRELLO_API_KEY, "token": TRELLO_TOKEN},
                                   headers=HEADERS)
 
