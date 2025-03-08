@@ -21,7 +21,7 @@ def send_telegram_message(message):
     requests.post(url, data=data)
 
 # 📌 Функция архивации карточки (вместо удаления)
-@app.route("/archive_card", methods=["PATCH"])
+@app.route("/archive_card", methods=["POST"])
 def archive_card():
     data = request.json
     name = data.get("name", "").strip()  # Очищаем от лишних пробелов
